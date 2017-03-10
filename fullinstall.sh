@@ -6,6 +6,10 @@
 #settings
 installdisk="/dev/sda"
 homesize="10G"
+extrapackages="vim htop firefox evolution lvm2 pidgin terminator vagrant vlc wget"
+hostname="trappist"
+username="vdmkenny"
+userpass="supersecretpassword"
 
 #Check for internet connection
 echo * Checking internet connection...
@@ -92,7 +96,34 @@ mount /dev/mapper/system-lvm--home /mnt/home
 mount /dev/sda1 /mnt/boot
 
 #pacstrap all the things
-pacstrap /mnt base base-devel gnome gnome-extra
+pacstrap /mnt base base-devel gnome gnome-tweak-tool pwgen zsh ${extrapackages}
 
+#generate fstab file
+genfstab -U /mnt > /mnt/etc/fstab
 
+#chroot into new fs
+arch-chroot /mnt
 
+#set timezone
+ln -sf /usr/share/zoneinfo/Europe/Brussels /etc/localtime
+
+#set hardware clock
+hwclock --systohc
+
+#set locale
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+echo "nl_BE.UTF-8 UTF-8" >> /etc/locale.gen
+echo "fr_BE.UTF-8 UTF-8" >> /etc/locale.gen
+locale-gen
+
+#set hostname
+echo ${hostname} > /etc/hostname
+
+#double tap initramfs to be sure
+mkinitcpio -p linux
+
+#set rootpw to something random
+randompw=$(pwgen -c -n -y | head -n 1)
+echo root:${randompw} | chpasswd
+
+useradd -m -d /home/${username}/ -s /bin/zsh -g wheel ${username}
