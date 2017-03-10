@@ -91,7 +91,7 @@ mkfs.xfs /dev/mapper/system-lvm--home
 sed -i "/^HOOKS/c\HOOKS\= \"base udev autodetect modconf block lvm2 filesystems keyboard fsck\"/" /etc/mkinitcpio.conf
 
 #set mirrorlist to kangaroot
-echo "Server = http://archlinux.mirror.kangaroot.net/$repo/os/$arch" > /etc/pacman.d/mirrorlist
+echo 'Server = http://archlinux.mirror.kangaroot.net/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 
 #create mountpoints
 mkdir -p /mnt /mnt/boot /mnt/home
