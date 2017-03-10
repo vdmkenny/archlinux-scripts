@@ -11,8 +11,11 @@ hostname="trappist"
 username="vdmkenny"
 userpass="supersecretpassword"
 
+echo "Get ready to Arch!!!"
+echo ""
+
 #Check for internet connection
-echo * Checking internet connection...
+echo "Checking internet connection..."
 if ! ping -c 1 8.8.8.8 &> /dev/null
 then
 	echo "You have no internet connection. Can't install without."
@@ -20,7 +23,7 @@ then
 fi
 
 #check if install device exists
-if [ ! -f ${installdisk} ]; then
+if [ ! ls ${installdisk} ]; then
     echo "${installdisk} not found. Exiting."
     exit 1
 fi
