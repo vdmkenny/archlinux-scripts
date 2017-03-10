@@ -23,7 +23,7 @@ then
 fi
 
 #check if install device exists
-if ! [ ls ${installdisk} ]; then
+if ! ls ${installdisk}; then
     echo "${installdisk} not found. Exiting."
     exit 1
 fi
