@@ -5,7 +5,7 @@
 
 #settings
 installdisk="/dev/sda"
-homesize="10G"
+homesize="3G"
 extrapackages="vim htop firefox evolution lvm2 pidgin terminator vagrant vlc wget"
 hostname="trappist"
 username="vdmkenny"
