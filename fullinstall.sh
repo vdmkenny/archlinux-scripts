@@ -23,7 +23,7 @@ then
 fi
 
 #check if install device exists
-if [ ! ls ${installdisk} ]; then
+if ! [ ls ${installdisk} ]; then
     echo "${installdisk} not found. Exiting."
     exit 1
 fi
@@ -57,7 +57,9 @@ n
 
 w
 EOF
+
 mkfs.fat -F32 /dev/sda1
+
 else
 fdisk ${installdisk} <<EOF
 g
@@ -67,6 +69,7 @@ n
 
 w
 EOF
+
 fi
 
 #create LVM volume
