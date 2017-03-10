@@ -99,7 +99,9 @@ mkdir -p /mnt /mnt/boot /mnt/home
 #mount disks
 mount /dev/mapper/system-lvm--root /mnt
 mount /dev/mapper/system-lvm--home /mnt/home
-mount /dev/sda1 /mnt/boot
+if ! $EFI; then
+    mount /dev/sda1 /mnt/boot
+fi
 
 #pacstrap all the things
 pacstrap /mnt base base-devel gnome gnome-tweak-tool pwgen zsh ${extrapackages}
