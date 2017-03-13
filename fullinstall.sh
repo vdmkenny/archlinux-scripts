@@ -124,61 +124,61 @@ genfstab -U /mnt > /mnt/etc/fstab
 
 #set timezone
 echo "Setting timezone to Brussels"
-arch-chroot /mnt "ln -sf /usr/share/zoneinfo/Europe/Brussels /etc/localtime"
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/Europe/Brussels /etc/localtime
 
 #set hardware clock
 echo "Setting hardware clock"
-arch-chroot /mnt "hwclock --systohc"
+arch-chroot /mnt hwclock --systohc
 
 #set locale
 echo "Generating locales"
-arch-chroot /mnt 'echo "en_US.UTF-8 UTF-8" > /etc/locale.gen'
-arch-chroot /mnt 'echo "nl_BE.UTF-8 UTF-8" >> /etc/locale.gen'
-arch-chroot /mnt 'echo "fr_BE.UTF-8 UTF-8" >> /etc/locale.gen'
-arch-chroot /mnt 'locale-gen'
+arch-chroot /mnt echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+arch-chroot /mnt echo "nl_BE.UTF-8 UTF-8" >> /etc/locale.gen
+arch-chroot /mnt echo "fr_BE.UTF-8 UTF-8" >> /etc/locale.gen
+arch-chroot /mnt locale-gen
 
 #set hostname
 echo "Setting hostname to ${hostname}"
-arch-chroot /mnt "echo ${hostname} > /etc/hostname"
+arch-chroot /mnt echo ${hostname} > /etc/hostname
 
 #double tap initramfs to be sure
 echo "Re-generating initramfs"
-arch-chroot /mt "mkinitcpio -p linux"
+arch-chroot /mnt mkinitcpio -p linux
 
 #set rootpw to something random
 echo "Randomizing root password"
-arch-chroot "echo root:$(pwgen -c -n -y | head -n 1) | chpasswd"
+arch-chroot /mnt echo root:$(pwgen -c -n -y | head -n 1) | chpasswd
 
 #add defined user
 echo "Adding user ${username}"
-arch-chroot /mnt "useradd -m -d /home/${username}/ -s /bin/zsh -G wheel ${username}"
-arch-chroot /mnt "echo ${username}:${userpass} | chpasswd"
+arch-chroot /mnt useradd -m -d /home/${username}/ -s /bin/zsh -G wheel ${username}
+arch-chroot /mnt echo ${username}:${userpass} | chpasswd
 
 #install bootloader, systemdboot for EFI, grub for BIOS.
 if $EFI; then
     echo "Installing systemdboot"
-    arch-chroot /mnt "bootctl --path=/boot install"
+    arch-chroot /mnt bootctl --path=/boot install
     bootfile="default  arch
 timeout  4
 editor   0"
-    arch-chroot /mnt "touch /boot/loader/loader.conf"
-    arch-chroot /mnt "echo ${bootfile} > /boot/loader/loader.conf"
+    arch-chroot /mnt touch /boot/loader/loader.conf
+    arch-chroot /mnt echo ${bootfile} > /boot/loader/loader.conf
     
     archloader="title          Arch Linux
 linux          /vmlinuz-linux
 initrd         /initramfs-linux.img
 options        root=/dev/mapper/system-lvm--root rw"
-    arch-chroot /mnt "touch /boot/loader/entries/arch.conf"
-    arch-chroot /mnt "echo ${archloader} > /boot/loader/entries/arch.conf"
+    arch-chroot /mnt touch /boot/loader/entries/arch.conf
+    arch-chroot /mnt echo ${archloader} > /boot/loader/entries/arch.conf
 else
     echo "Installing GRUB"
-    arch-chroot /mnt "pacman -S grub --noconfirm"
-    arch-chroot /mnt "grub-install --target=i386-pc ${installdisk}"
-    arch-chroot /mnt "grub-mkconfig -o /boot/grub/grub.cfg"
+    arch-chroot /mnt pacman -S grub --noconfirm
+    arch-chroot /mnt grub-install --target=i386-pc ${installdisk}
+    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
 echo "Enabling GDM"
-arch-chroot /mnt "systemctl enable gdm"
+arch-chroot /mnt systemctl enable gdm
 
 echo "Unmounting partitions"
 umount -R /mnt
