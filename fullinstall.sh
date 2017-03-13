@@ -175,6 +175,7 @@ else
     arch-chroot /mnt pacman -S grub --noconfirm
     arch-chroot /mnt grub-install --target=i386-pc ${installdisk}
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    arch-chroot /mnt echo 'GRUB_PRELOAD_MODULES="lvm"' >> /etc/default/grub
 fi
 
 echo "Enabling GDM"
