@@ -141,10 +141,6 @@ arch-chroot /mnt locale-gen
 echo "Setting hostname to ${hostname}"
 arch-chroot /mnt echo ${hostname} > /etc/hostname
 
-#double tap initramfs to be sure
-echo "Re-generating initramfs"
-arch-chroot /mnt mkinitcpio -p linux
-
 #set rootpw to something random
 echo "Randomizing root password"
 arch-chroot /mnt echo root:$(pwgen -c -n -y | head -n 1) | chpasswd
@@ -173,10 +169,14 @@ options        root=/dev/mapper/system-lvm--root rw"
 else
     echo "Installing GRUB"
     arch-chroot /mnt pacman -S grub --noconfirm
+    arch-chroot /mnt echo 'GRUB_PRELOAD_MODULES="lvm"' >> /etc/default/grub
     arch-chroot /mnt grub-install --target=i386-pc ${installdisk}
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
-    arch-chroot /mnt echo 'GRUB_PRELOAD_MODULES="lvm"' >> /etc/default/grub
 fi
+
+#double tap initramfs to be sure
+echo "Re-generating initramfs"
+arch-chroot /mnt mkinitcpio -p linux
 
 echo "Enabling GDM"
 arch-chroot /mnt systemctl enable gdm
