@@ -165,12 +165,14 @@ if $ESP; then
     bootfile="default  arch
 timeout  4
 editor   0"
+    touch /boot/loader/loader.conf
     echo ${bootfile} > /boot/loader/loader.conf
     
     archloader="title          Arch Linux
 linux          /vmlinuz-linux
 initrd         /initramfs-linux.img
 options        root=/dev/mapper/system-lvm--root rw"
+    touch /boot/loader/entries/arch.conf
     echo ${archloader} > /boot/loader/entries/arch.conf
 
    
