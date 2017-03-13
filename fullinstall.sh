@@ -109,7 +109,7 @@ mkdir -p /mnt /mnt/boot /mnt/home
 echo "Mounting disks"
 mount /dev/mapper/system-lvm--root /mnt
 mount /dev/mapper/system-lvm--home /mnt/home
-if ! $EFI; then
+if $EFI; then
     mount /dev/sda1 /mnt/boot
 fi
 
@@ -159,7 +159,7 @@ useradd -m -d /home/${username}/ -s /bin/zsh -G wheel ${username}
 echo ${username}:${userpass} | chpasswd
 
 #install bootloader, systemdboot for EFI, grub for BIOS.
-if $ESP; then
+if $EFI; then
     echo "Installing systemdboot"
     bootctl --path=/boot install
     bootfile="default  arch
