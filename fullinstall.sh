@@ -150,7 +150,7 @@ echo "Adding user ${username}"
 arch-chroot /mnt useradd -m -d /home/${username}/ -s /bin/zsh -G wheel ${username}
 arch-chroot /mnt echo ${username}:${userpass} | chpasswd
 
-
+arch-chroot /mnt sed -i "/^HOOKS/c\HOOKS\= \"base udev autodetect modconf block lvm2 filesystems keyboard fsck\"/" /etc/mkinitcpio.conf
 #double tap initramfs to be sure
 echo "Re-generating initramfs"
 arch-chroot /mnt mkinitcpio -p linux
