@@ -143,12 +143,17 @@ arch-chroot /mnt echo ${hostname} > /etc/hostname
 
 #set rootpw to something random
 echo "Randomizing root password"
-arch-chroot /mnt echo root:$(pwgen -c -n -y | head -n 1) | chpasswd
+arch-chroot /mnt echo root:\$(pwgen -c -n -y | head -n 1) | chpasswd
 
 #add defined user
 echo "Adding user ${username}"
 arch-chroot /mnt useradd -m -d /home/${username}/ -s /bin/zsh -G wheel ${username}
 arch-chroot /mnt echo ${username}:${userpass} | chpasswd
+
+
+#double tap initramfs to be sure
+echo "Re-generating initramfs"
+arch-chroot /mnt mkinitcpio -p linux
 
 #install bootloader, systemdboot for EFI, grub for BIOS.
 if $EFI; then
@@ -160,7 +165,7 @@ editor   0"
     arch-chroot /mnt touch /boot/loader/loader.conf
     arch-chroot /mnt echo ${bootfile} > /boot/loader/loader.conf
     
-    archloader="title          Arch Linux
+e   archloader="title          Arch Linux
 linux          /vmlinuz-linux
 initrd         /initramfs-linux.img
 options        root=/dev/mapper/system-lvm--root rw"
@@ -173,10 +178,6 @@ else
     arch-chroot /mnt grub-install --target=i386-pc ${installdisk}
     arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
 fi
-
-#double tap initramfs to be sure
-echo "Re-generating initramfs"
-arch-chroot /mnt mkinitcpio -p linux
 
 echo "Enabling GDM"
 arch-chroot /mnt systemctl enable gdm
