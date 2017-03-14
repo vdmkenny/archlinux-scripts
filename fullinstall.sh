@@ -45,7 +45,6 @@ timedatectl set-ntp true
 
 #format disk and partition
 echo "Partitioning disk ${installdisk}"
-if $EFI; then
 fdisk ${installdisk} <<EOF
 g
 n
@@ -63,27 +62,11 @@ EOF
 echo "Formatting ESP"
 mkfs.fat -F32 /dev/sda1
 
-else
-fdisk ${installdisk} <<EOF
-n
-p
-1
-
-
-w
-EOF
-
-fi
-
 #create LVM volume
 echo "Creating LVM volume 'system'"
-if $EFI; then
-	pvcreate ${installdisk}2
-	vgcreate system ${installdisk}2
-else
-	pvcreate ${installdisk}1
-	vgcreate system ${installdisk}1
-fi
+pvcreate ${installdisk}2
+vgcreate system ${installdisk}2
+
 echo 'Creating home and root volumes'
 lvcreate -L ${homesize} system -n lvm-home
 lvcreate -l +100%FREE system -n lvm-root 
@@ -92,10 +75,6 @@ lvcreate -l +100%FREE system -n lvm-root
 echo "Formatting root/home LVs to XFS"
 mkfs.xfs /dev/mapper/system-lvm--root
 mkfs.xfs /dev/mapper/system-lvm--home
-
-#edit mkinitcpio hooks for lvm boot
-echo "Editing mkinitcpio hooks for LVM boot"
-sed -i "/^HOOKS/c\HOOKS\= \"base udev autodetect modconf block lvm2 filesystems keyboard fsck\"/" /etc/mkinitcpio.conf
 
 #set mirrorlist to kangaroot
 echo "Setting mirrorlist to kangaroot"
@@ -109,9 +88,7 @@ mkdir -p /mnt /mnt/boot /mnt/home
 echo "Mounting disks"
 mount /dev/mapper/system-lvm--root /mnt
 mount /dev/mapper/system-lvm--home /mnt/home
-if $EFI; then
-    mount /dev/sda1 /mnt/boot
-fi
+mount /dev/sda1 /mnt/boot
 
 #pacstrap all the things
 echo "Pacstrapping root"
@@ -156,7 +133,7 @@ arch-chroot /mnt sed -i "/^HOOKS/c\HOOKS\= \"base udev autodetect modconf block 
 echo "Re-generating initramfs"
 arch-chroot /mnt mkinitcpio -p linux
 
-#install bootloader, systemdboot for EFI, grub for BIOS.
+#install bootloader, systemdboot for EFI, syslinux for BIOS.
 if $EFI; then
     echo "Installing systemdboot"
     arch-chroot /mnt bootctl --path=/boot install
@@ -173,11 +150,22 @@ options        root=/dev/mapper/system-lvm--root rw"
     arch-chroot /mnt touch /boot/loader/entries/arch.conf
     arch-chroot /mnt echo ${archloader} > /boot/loader/entries/arch.conf
 else
-    echo "Installing GRUB"
-    arch-chroot /mnt pacman -S grub --noconfirm
-    arch-chroot /mnt echo 'GRUB_PRELOAD_MODULES="lvm"' >> /etc/default/grub
-    arch-chroot /mnt grub-install --target=i386-pc ${installdisk}
-    arch-chroot /mnt grub-mkconfig -o /boot/grub/grub.cfg
+    echo "Installing Syslinux"
+    arch-chroot /mnt pacman -S syslinux gptfdisk mtools --noconfirm
+    arch-chroot /mnt syslinux-install_update -i -a -m
+    syslinuxconfig=" PROMPT 0
+ TIMEOUT 50
+ DEFAULT arch
+ 
+ LABEL arch
+         LINUX ../vmlinuz-linux
+         APPEND root=/dev/mapper/system-lvm--root rw
+         INITRD ../initramfs-linux.img
+ 
+ LABEL archfallback
+         LINUX ../vmlinuz-linux
+         APPEND root=/dev/mapper/system-lvm--root rw
+         INITRD ../initramfs-linux-fallback.img"
 fi
 
 echo "Enabling GDM"
