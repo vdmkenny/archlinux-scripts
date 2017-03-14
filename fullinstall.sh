@@ -143,7 +143,8 @@ arch-chroot /mnt echo ${hostname} > /etc/hostname
 
 #set rootpw to something random
 echo "Randomizing root password"
-arch-chroot /mnt echo root:\$(pwgen -c -n -y | head -n 1) | chpasswd
+pacman -S pwgen --noconfirm
+arch-chroot /mnt echo root:$(pwgen -c -n -y | head -n 1) | chpasswd
 
 #add defined user
 echo "Adding user ${username}"
