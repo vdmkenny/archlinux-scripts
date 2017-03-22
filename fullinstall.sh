@@ -166,6 +166,8 @@ else
          LINUX ../vmlinuz-linux
          APPEND root=/dev/mapper/system-lvm--root rw
          INITRD ../initramfs-linux-fallback.img"
+    arch-chroot /mnt touch /boot/syslinux/syslinux.cfg
+    arch-chroot /mnt echo ${syslinuxconfig} > /boot/syslinux/syslinux.cfg
 fi
 
 echo "Enabling GDM"
