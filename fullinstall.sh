@@ -143,7 +143,7 @@ editor   0"
     arch-chroot /mnt touch /boot/loader/loader.conf
     arch-chroot /mnt echo ${bootfile} > /boot/loader/loader.conf
     
-e   archloader="title          Arch Linux
+    archloader="title          Arch Linux
 linux          /vmlinuz-linux
 initrd         /initramfs-linux.img
 options        root=/dev/mapper/system-lvm--root rw"
